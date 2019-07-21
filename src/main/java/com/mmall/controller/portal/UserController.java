@@ -8,6 +8,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.ResponseBody;
 
 import javax.servlet.http.HttpSession;
 
@@ -19,6 +20,7 @@ public class UserController {
   IUserService iUserService;
 
   @RequestMapping(value = "/login", method = RequestMethod.POST)
+  @ResponseBody
   /**
    * @Param username:
    * @Param password:
@@ -33,6 +35,19 @@ public class UserController {
     }
 
     return response;
+  }
+
+  @RequestMapping(value = "/logout", method = RequestMethod.GET)
+  @ResponseBody
+  public ServerResponse<String> logout(HttpSession session) {
+    session.removeAttribute(Const.CURRENT_USER);
+    return ServerResponse.createBySuccessMessage("退出登录");
+  }
+
+  @RequestMapping(value = "/register", method = RequestMethod.POST)
+  @ResponseBody
+  public ServerResponse<String> register(User user) {
+    return iUserService.register(user);
   }
 }
 
