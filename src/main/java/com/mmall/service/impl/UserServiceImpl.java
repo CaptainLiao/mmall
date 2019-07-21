@@ -35,22 +35,18 @@ public class UserServiceImpl implements IUserService {
   }
 
   public ServerResponse<String> register(User user) {
-    int resultCount = userMapper.checkUsername(user.getUsername());
-    if (resultCount > 0) {
-      return ServerResponse.createByErrorMessage("用户名已存在");
-    }
+    ServerResponse validResponse = this.checkValid(user.getUsername(),Const.USERNAME);
+    if(!validResponse.isSuccess()) return validResponse;
 
-    resultCount = userMapper.checkEmail(user.getEmail());
-    if (resultCount > 0) {
-      return ServerResponse.createByErrorMessage("email 已存在");
-    }
+    validResponse = this.checkValid(user.getEmail(),Const.EMAIL);
+    if(!validResponse.isSuccess())return validResponse;
 
     user.setRole(Const.Role.ROLE_CUSTOMER);
 
     // MD5 加密
     user.setPassword(MD5Util.MD5EncodeUtf8(user.getPassword()));
 
-    resultCount = userMapper.insert(user);
+    int resultCount = userMapper.insert(user);
     if (resultCount == 0) {
       return ServerResponse.createByErrorMessage("注册失败");
     }
@@ -58,4 +54,59 @@ public class UserServiceImpl implements IUserService {
     return ServerResponse.createBySuccessMessage("注册成功");
   }
 
+  public ServerResponse<String> checkValid(String str, String type) {
+    if(StringUtils.isNoneBlank(type) == false) {
+      return ServerResponse.createByErrorMessage("参数不存在");
+    }
+
+    if (Const.USERNAME.equals(type)) {
+      int resultCount = userMapper.checkUsername(str);
+      if (resultCount > 0) {
+        return ServerResponse.createByErrorMessage("用户名已存在");
+      }
+    }
+
+    if (Const.EMAIL.equals(type)) {
+      int resultCount = userMapper.checkEmail(str);
+      if (resultCount > 0) {
+        return ServerResponse.createByErrorMessage("email 已存在");
+      }
+    }
+
+    return ServerResponse.createBySuccessMessage("校验成功");
+  }
+
+  public ServerResponse selectQuestion(String username) {
+    ServerResponse validRes = checkValid(username, Const.USERNAME);
+
+    if (validRes.isSuccess()) {
+      return ServerResponse.createByErrorMessage("用户不存在");
+    }
+
+    String question = userMapper.selectQuestionByUsername(username);
+    if (StringUtils.isNoneBlank(question)) {
+      return ServerResponse.createBySuccess(question);
+    }
+    return ServerResponse.createByErrorMessage("密码问题是空的");
+  }
+
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

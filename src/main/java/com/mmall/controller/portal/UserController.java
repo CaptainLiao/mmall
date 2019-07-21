@@ -49,6 +49,24 @@ public class UserController {
   public ServerResponse<String> register(User user) {
     return iUserService.register(user);
   }
+
+  @RequestMapping(value = "/getUserInfo", method = RequestMethod.GET)
+  @ResponseBody
+  public ServerResponse<User> getUserInfo(HttpSession session) {
+    User user = (User) session.getAttribute(Const.CURRENT_USER);
+    if (user == null) {
+      return ServerResponse.createByErrorMessage("用户未登录");
+    }
+
+    return ServerResponse.createBySuccess(user);
+  }
+
+  @RequestMapping(value = "/forgetQuestion", method = RequestMethod.GET)
+  @ResponseBody
+  public ServerResponse<String> forgetQuestion(String username) {
+    return iUserService.selectQuestion(username);
+  }
+
 }
 
 
