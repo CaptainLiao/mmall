@@ -12,4 +12,11 @@ com.mmall
 *   common
 
 
+### IDEA setting
+*   jkd
+*   maven
+*   实时problem：Compiler->Make project automatically
+*   @Autowire 报错：inspections ->spring-> spring core -> autowiring for bean class
+
+
 
