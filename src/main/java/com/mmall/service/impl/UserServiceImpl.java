@@ -11,6 +11,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import javax.servlet.http.HttpSession;
 import java.util.UUID;
 
 @Service("iUserService")
@@ -106,7 +107,7 @@ public class UserServiceImpl implements IUserService {
     return ServerResponse.createByErrorMessage("问题答案错误");
   }
 
-  public ServerResponse<String> fogetResetPassword(String username, String passwordNew, String forgetToken) {
+  public ServerResponse<String> forgetResetPassword(String username, String passwordNew, String forgetToken) {
     if (StringUtils.isBlank(forgetToken)) {
       return ServerResponse.createByErrorMessage("token 为空");
     }
@@ -125,6 +126,24 @@ public class UserServiceImpl implements IUserService {
       }
     } else {
       return ServerResponse.createBySuccessMessage("token 错误，请重新获取修改密码的 token");
+    }
+
+    return ServerResponse.createByErrorMessage("修改密码失败");
+  }
+
+  public ServerResponse<String> resetPassword(String passwordOld, String passwordNew, User user) {
+    // 防止横向越权，要校验这个用户的旧密码，一定要指定是这个用户，
+    // 因为我们会查询一个 count(1)，如果不指定 id，那么结果就是 true
+    int resultCount = userMapper.checkPassword(MD5Util.MD5EncodeUtf8(passwordOld), user.getId());
+
+    if (resultCount == 0) {
+      return ServerResponse.createByErrorMessage("用户名和旧密码不匹配");
+    }
+    String md5Password = MD5Util.MD5EncodeUtf8(passwordNew);
+    resultCount = userMapper.updatePasswordByUsername(user.getUsername(), md5Password);
+
+    if (resultCount > 0) {
+      return ServerResponse.createBySuccessMessage("修改密码成功");
     }
 
     return ServerResponse.createByErrorMessage("修改密码失败");

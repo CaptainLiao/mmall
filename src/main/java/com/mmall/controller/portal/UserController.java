@@ -66,9 +66,18 @@ public class UserController {
     return  iUserService.checkAnswer(username, question, answer);
   }
 
-  @RequestMapping(value = "/fogetResetPassword", method = RequestMethod.POST)
-  public ServerResponse<String> fogetResetPassword(String username, String passwordNew, String forgetToken) {
-    return iUserService.fogetResetPassword(username, passwordNew, forgetToken);
+  @RequestMapping(value = "/forgetResetPassword", method = RequestMethod.POST)
+  public ServerResponse<String> forgetResetPassword(String username, String passwordNew, String forgetToken) {
+    return iUserService.forgetResetPassword(username, passwordNew, forgetToken);
+  }
+
+  @RequestMapping(value = "/resetPassword", method = RequestMethod.POST)
+  public ServerResponse<String> resetPassword(HttpSession session, String passwordOld, String passwordNew) {
+    User user = (User) session.getAttribute(Const.CURRENT_USER);
+    if (user == null) {
+      return ServerResponse.createByErrorMessage("用户未登录");
+    }
+    return iUserService.resetPassword(passwordOld, passwordNew, user);
   }
 
 }
