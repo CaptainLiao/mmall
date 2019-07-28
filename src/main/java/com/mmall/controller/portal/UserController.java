@@ -66,6 +66,11 @@ public class UserController {
     return  iUserService.checkAnswer(username, question, answer);
   }
 
+  @RequestMapping(value = "/fogetResetPassword", method = RequestMethod.POST)
+  public ServerResponse<String> fogetResetPassword(String username, String passwordNew, String forgetToken) {
+    return iUserService.fogetResetPassword(username, passwordNew, forgetToken);
+  }
+
 }
 
 
