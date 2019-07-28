@@ -1,6 +1,7 @@
 package com.mmall.controller.portal;
 
 import com.mmall.common.Const;
+import com.mmall.common.ResponseCode;
 import com.mmall.common.ServerResponse;
 import com.mmall.pojo.User;
 import com.mmall.service.IUserService;
@@ -12,7 +13,7 @@ import org.springframework.web.bind.annotation.RestController;
 import javax.servlet.http.HttpSession;
 
 @RestController
-@RequestMapping("/user/")
+@RequestMapping("/user")
 public class UserController {
 
   @Autowired
@@ -35,7 +36,7 @@ public class UserController {
     return response;
   }
 
-  @RequestMapping(value = "/logout", method = RequestMethod.GET)
+  @RequestMapping(value = "/logout", method = RequestMethod.POST)
   public ServerResponse<String> logout(HttpSession session) {
     session.removeAttribute(Const.CURRENT_USER);
     return ServerResponse.createBySuccessMessage("退出登录");
@@ -45,8 +46,12 @@ public class UserController {
   public ServerResponse<String> register(User user) {
     return iUserService.register(user);
   }
+  @RequestMapping(value = "/checkValid", method = RequestMethod.POST)
+  public ServerResponse<String> checkValid(String str, String type) {
+    return iUserService.checkValid(str, type);
+  }
 
-  @RequestMapping(value = "/getUserInfo", method = RequestMethod.GET)
+  @RequestMapping(value = "/getUserInfo", method = RequestMethod.POST)
   public ServerResponse<User> getUserInfo(HttpSession session) {
     User user = (User) session.getAttribute(Const.CURRENT_USER);
     if (user == null) {
@@ -56,7 +61,7 @@ public class UserController {
     return ServerResponse.createBySuccess(user);
   }
 
-  @RequestMapping(value = "/forgetQuestion", method = RequestMethod.GET)
+  @RequestMapping(value = "/forgetQuestion", method = RequestMethod.POST)
   public ServerResponse<String> forgetQuestion(String username) {
     return iUserService.selectQuestion(username);
   }
@@ -95,6 +100,16 @@ public class UserController {
     }
 
     return response;
+  }
+
+  @RequestMapping(value = "/getUserDetail", method = RequestMethod.POST)
+  public ServerResponse<User> getUserDetail(HttpSession session) {
+    User user = (User) session.getAttribute(Const.CURRENT_USER);
+    if (user == null) {
+      return ServerResponse.createByErrorCodeMessage(ResponseCode.NEED_LOGIN.getCode(),"未登录");
+    }
+
+    return iUserService.getUserInfo(user.getId());
   }
 
 }
