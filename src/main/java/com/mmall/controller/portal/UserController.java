@@ -80,6 +80,23 @@ public class UserController {
     return iUserService.resetPassword(passwordOld, passwordNew, user);
   }
 
+  @RequestMapping(value = "/updateUserInfo", method = RequestMethod.POST)
+  public ServerResponse<User> updateUserInfo(HttpSession session, User user) {
+    User currentUser = (User) session.getAttribute(Const.CURRENT_USER);
+    if (currentUser == null) {
+      return ServerResponse.createByErrorMessage("用户未登录");
+    }
+
+    user.setId(currentUser.getId());
+    user.setUsername(currentUser.getUsername());
+    ServerResponse<User> response = iUserService.updateUserInfo(user);
+    if (response.isSuccess()) {
+      session.setAttribute(Const.CURRENT_USER, response.getData());
+    }
+
+    return response;
+  }
+
 }
 
 
