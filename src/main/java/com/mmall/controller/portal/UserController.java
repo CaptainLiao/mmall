@@ -5,14 +5,13 @@ import com.mmall.common.ServerResponse;
 import com.mmall.pojo.User;
 import com.mmall.service.IUserService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.bind.annotation.RestController;
 
 import javax.servlet.http.HttpSession;
 
-@Controller
+@RestController
 @RequestMapping("/user/")
 public class UserController {
 
@@ -20,7 +19,6 @@ public class UserController {
   IUserService iUserService;
 
   @RequestMapping(value = "/login", method = RequestMethod.POST)
-  @ResponseBody
   /**
    * @Param username:
    * @Param password:
@@ -38,20 +36,17 @@ public class UserController {
   }
 
   @RequestMapping(value = "/logout", method = RequestMethod.GET)
-  @ResponseBody
   public ServerResponse<String> logout(HttpSession session) {
     session.removeAttribute(Const.CURRENT_USER);
     return ServerResponse.createBySuccessMessage("退出登录");
   }
 
   @RequestMapping(value = "/register", method = RequestMethod.POST)
-  @ResponseBody
   public ServerResponse<String> register(User user) {
     return iUserService.register(user);
   }
 
   @RequestMapping(value = "/getUserInfo", method = RequestMethod.GET)
-  @ResponseBody
   public ServerResponse<User> getUserInfo(HttpSession session) {
     User user = (User) session.getAttribute(Const.CURRENT_USER);
     if (user == null) {
@@ -62,9 +57,13 @@ public class UserController {
   }
 
   @RequestMapping(value = "/forgetQuestion", method = RequestMethod.GET)
-  @ResponseBody
   public ServerResponse<String> forgetQuestion(String username) {
     return iUserService.selectQuestion(username);
+  }
+
+  @RequestMapping(value = "/forgetCheckAnswer", method = RequestMethod.POST)
+  public ServerResponse<String> forgetCheckAnswer(String username, String question, String answer) {
+    return  iUserService.checkAnswer(username, question, answer);
   }
 
 }
