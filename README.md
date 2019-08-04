@@ -19,4 +19,26 @@ com.mmall
 *   @Autowire 报错：inspections ->spring-> spring core -> autowiring for bean class
 
 
+### 静态代码块
+静态代码块在类加载的时候执行，且只会执行一次。一般用于初始化静态变量。
+
+执行顺序：静态代码块 > 普通代码块 > 构造代码块
+````java
+public class CodeBlock {
+  // 静态代码块
+  static {
+    
+  }
+  // 普通代码块
+  {
+    
+  }
+  // 构造代码块，每次构造对象都会执行
+  public CodeBlock() {
+    
+  }
+}
+
+````
+
 
