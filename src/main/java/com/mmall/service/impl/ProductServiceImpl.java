@@ -146,6 +146,32 @@ public class ProductServiceImpl implements IProductService {
     return productListVo;
   }
 
+  public ServerResponse<PageInfo> searchProductList(String productName,
+                                          Integer productId,
+                                          Integer pageNum,
+                                          Integer pageSize) {
+    PageHelper.startPage(pageNum, pageSize);
+
+    if (productName != null) {
+      productName = new StringBuffer()
+          .append("%")
+          .append(productName)
+          .append("%")
+          .toString();
+    }
+
+    List<Product> productList = productMapper.selectListByNameAndId(productName, productId);
+    List<ProductListVo> productListVoList = Lists.newArrayList();
+    for (Product product : productList) {
+      ProductListVo productListVo = assembleProductListVo(product);
+      productListVoList.add(productListVo);
+    }
+
+    PageInfo pageResult = new PageInfo(productList);
+    pageResult.setList(productListVoList);
+
+    return ServerResponse.createBySuccess(pageResult);
+  }
 
 }
 
