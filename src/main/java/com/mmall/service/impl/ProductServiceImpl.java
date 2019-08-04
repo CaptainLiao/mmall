@@ -1,5 +1,8 @@
 package com.mmall.service.impl;
 
+import com.github.pagehelper.PageHelper;
+import com.github.pagehelper.PageInfo;
+import com.google.common.collect.Lists;
 import com.mmall.common.ResponseCode;
 import com.mmall.common.ServerResponse;
 import com.mmall.dao.CategoryMapper;
@@ -10,9 +13,12 @@ import com.mmall.service.IProductService;
 import com.mmall.util.DateTimeUtil;
 import com.mmall.util.PropertiesUtil;
 import com.mmall.vo.ProductDetailVo;
+import com.mmall.vo.ProductListVo;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+
+import java.util.List;
 
 @Service("iProductService")
 public class ProductServiceImpl implements IProductService {
@@ -107,6 +113,39 @@ public class ProductServiceImpl implements IProductService {
 
     return productDetailVo;
   }
+
+  public ServerResponse<PageInfo> getProductList(int pageNum, int pageSize) {
+    // 使用 mybatis-pageHelper 进行分页
+    // startPage
+    // 填充自己的 sql 查询
+    // pageHelper - 收尾
+    PageHelper.startPage(pageNum, pageSize);
+    List<Product> products = productMapper.selectList();
+    List<ProductListVo> productListVoList = Lists.newArrayList();
+    for (Product product : products) {
+      ProductListVo productListVo = assembleProductListVo(product);
+      productListVoList.add(productListVo);
+    }
+
+    PageInfo pageResult = new PageInfo(products);
+    pageResult.setList(productListVoList);
+
+    return ServerResponse.createBySuccess(pageResult);
+  }
+  private ProductListVo assembleProductListVo(Product product) {
+    ProductListVo productListVo = new ProductListVo();
+    productListVo.setId(product.getId());
+    productListVo.setCategoryId(product.getCategoryId());
+    productListVo.setImageHost(PropertiesUtil.getProperty("ftp.server.http.prefix"));
+    productListVo.setMainImage(product.getMainImage());
+    productListVo.setName(product.getName());
+    productListVo.setSubtitle(product.getSubtitle());
+    productListVo.setPrice(product.getPrice());
+    productListVo.setStatus(product.getStatus());
+
+    return productListVo;
+  }
+
 
 }
 

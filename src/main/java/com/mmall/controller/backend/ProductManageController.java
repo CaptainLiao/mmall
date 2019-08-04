@@ -10,6 +10,7 @@ import com.mmall.service.IUserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import javax.servlet.http.HttpSession;
@@ -63,6 +64,22 @@ public class ProductManageController {
     }
     return iProductService.manageProductDetail(productId);
   }
+
+  @RequestMapping(value = "/list")
+  public ServerResponse getList(HttpSession session,
+                                @RequestParam(value = "pageNum", defaultValue = "1") Integer pageNum,
+                                @RequestParam(value = "pageSize", defaultValue = "10") Integer pageSize) {
+    User user = (User)session.getAttribute(Const.CURRENT_USER);
+    if (user == null) {
+      return ServerResponse.createByErrorCodeMessage(ResponseCode.NEED_LOGIN.getCode(), "用户未登录");
+    }
+
+    if (!iUserService.checkAdminRole(user).isSuccess()) {
+      return ServerResponse.createByErrorMessage("用户无权限");
+    }
+    return iProductService.getProductList(pageNum, pageSize);
+  }
+
 }
 
 
