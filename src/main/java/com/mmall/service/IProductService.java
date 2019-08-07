@@ -14,4 +14,6 @@ public interface IProductService {
                                              Integer productId,
                                              Integer pageNum,
                                              Integer pageSize);
+
+  ServerResponse<ProductDetailVo> getProductDetail(Integer productId);
 }
